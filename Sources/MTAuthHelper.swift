@@ -11,7 +11,8 @@ public enum MTAuthError: Error {
     case unknown
 }
 
-public actor MTAuthHelper {
+@MainActor
+public final class MTAuthHelper {
     public static let shared = MTAuthHelper()
     private init() {}
     
