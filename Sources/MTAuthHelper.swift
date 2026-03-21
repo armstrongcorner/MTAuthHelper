@@ -14,7 +14,15 @@ public enum MTAuthError: Error {
 @MainActor
 public final class MTAuthHelper: NSObject {
     public static let shared = MTAuthHelper()
-    private override init() {}
+    private let firebaseTokenProvider: FirebaseTokenProviderProtocol
+
+    public init(
+        firebaseTokenProvider: FirebaseTokenProviderProtocol = FirebaseTokenProvider()
+    ) {
+        self.firebaseTokenProvider = firebaseTokenProvider
+        
+        super.init()
+    }
     
     private var currentNonce: String?
     private var appleSignInContinuation: CheckedContinuation<AuthDataResult?, Error>?
@@ -26,6 +34,14 @@ public final class MTAuthHelper: NSObject {
     public func signOut() throws {
         try Auth.auth().signOut()
     }
+    
+    public func getIdToken(from user: User) async throws -> String {
+        do {
+            return try await firebaseTokenProvider.idToken(from: user)
+        } catch {
+            throw MTAuthError.firebaseAuthError(error)
+        }
+    }
 }
 
 // MARK: - Handle Google SSO
@@ -34,7 +50,7 @@ extension MTAuthHelper {
     public func handleGoogleSignIn() async throws -> AuthDataResult? {
         do {
             // Get the top uiviewcontroller to pop google login sheet.
-            guard let topVC = await ViewUtility.shared.topViewController() else {
+            guard let topVC = ViewUtility.shared.topViewController() else {
                 throw MTAuthError.noTopVC
             }
             

@@ -43,6 +43,18 @@ Shared instance:
 MTAuthHelper.shared
 ```
 
+Manual initialization:
+
+```swift
+let authHelper = MTAuthHelper()
+```
+
+Manual initialization with dependency injection:
+
+```swift
+let authHelper = MTAuthHelper(firebaseTokenProvider: FirebaseTokenProvider())
+```
+
 Available methods:
 
 ```swift
